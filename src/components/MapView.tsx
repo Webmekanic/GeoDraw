@@ -14,6 +14,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapView.css';
 import DrawToolbar from './DrawToolbar.tsx';
 import AssumptionControls from './AssumptionControls';
+import Tour from './Tour';
 
 type DrawMode = 'select' | 'polygon' | 'linestring' | 'circle' | null;
 
@@ -23,6 +24,7 @@ const MapView = () => {
   const draw = useRef<TerraDraw | null>(null);
   const [currentMode, setCurrentMode] = useState<DrawMode>(null);
   const [isAssumptionExpanded, setIsAssumptionExpanded] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   
   // Adjustable renewable energy assumptions
   const [solarMwPerHa, setSolarMwPerHa] = useState(0.5); // 1 MW ≈ 2 hectares
@@ -30,6 +32,15 @@ const MapView = () => {
 
   // Store popup references for updates
   const popupsRef = useRef<Map<string | number, { popup: maplibregl.Popup; feature: any }>>(new Map());
+
+  // Check if this is the first visit
+  useEffect(() => {
+    const tourCompleted = localStorage.getItem('tourCompleted');
+    if (!tourCompleted) {
+      // Delay tour start slightly to let the map render
+      setTimeout(() => setIsTourOpen(true), 500);
+    }
+  }, []);
 
   useEffect(() => {
     if (!mapContainer.current) {
@@ -316,6 +327,7 @@ const MapView = () => {
         </div>
       )}
       <div ref={mapContainer} className="map-container" />
+      <Tour isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
     </div>
   );
 };
