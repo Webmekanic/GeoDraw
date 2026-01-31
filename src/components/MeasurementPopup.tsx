@@ -7,6 +7,11 @@ interface AreaMeasurementProps {
   solarMW: number;
   windMW: number;
   title?: string;
+  overlapWarnings?: Array<{
+    zoneName: string;
+    overlapPercent: number;
+    zoneType: string;
+  }>;
 }
 
 interface DistanceMeasurementProps {
@@ -14,7 +19,7 @@ interface DistanceMeasurementProps {
   lengthM: number;
 }
 
-const AreaMeasurement = ({ hectares, areaM2, solarMW, windMW, title = 'Land Area' }: AreaMeasurementProps) => (
+const AreaMeasurement = ({ hectares, areaM2, solarMW, windMW, title = 'Land Area', overlapWarnings }: AreaMeasurementProps) => (
   <div className="measurement-popup">
     <div className="measurement-title">
       {title}
@@ -22,6 +27,19 @@ const AreaMeasurement = ({ hectares, areaM2, solarMW, windMW, title = 'Land Area
     <div className="measurement-value">
       <strong>{hectares.toFixed(2)} ha</strong> ({areaM2.toFixed(2)} m²)
     </div>
+    
+    {overlapWarnings && overlapWarnings.length > 0 && (
+      <div className="overlap-warnings">
+        {overlapWarnings.map((warning, index) => (
+          <div key={index} className={`overlap-warning overlap-${warning.zoneType}`}>
+            <div className="overlap-icon">⚠️</div>
+            <div className="overlap-text">
+              <strong>{warning.overlapPercent.toFixed(1)}%</strong> overlaps {warning.zoneName}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
     
     <div className="measurement-section">
       <div className="measurement-section-title">

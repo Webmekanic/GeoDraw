@@ -102,6 +102,16 @@ npm run preview
 
 5. **Clear** - Remove all drawings from the map
 
+## Energy Planning Capabilities
+
+GeoDraw extends basic geospatial drawing by translating spatial inputs
+into early-stage renewable energy planning signals.
+
+Drawn land parcels automatically generate indicative solar and wind
+capacity estimates based on configurable land-use assumptions. This
+demonstrates how interactive web maps can support transparent,
+open energy system planning workflows.
+
 ## Project Structure
 
 ```

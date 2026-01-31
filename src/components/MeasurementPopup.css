@@ -18,6 +18,55 @@
   font-weight: 600;
 }
 
+.overlap-warnings {
+  margin: 12px 0;
+  padding: 0;
+}
+
+.overlap-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  border-left: 3px solid;
+}
+
+.overlap-warning:last-child {
+  margin-bottom: 0;
+}
+
+.overlap-protected {
+  background: #d1fae5;
+  border-left-color: #10b981;
+}
+
+.overlap-settlement {
+  background: #fee2e2;
+  border-left-color: #ef4444;
+}
+
+.overlap-floodplain {
+  background: #dbeafe;
+  border-left-color: #3b82f6;
+}
+
+.overlap-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.overlap-text {
+  font-size: 12px;
+  color: #1a1a1a;
+  flex: 1;
+}
+
+.overlap-text strong {
+  font-weight: 600;
+}
+
 .measurement-section {
   border-top: 1px solid #e0e0e0;
   padding-top: 8px;

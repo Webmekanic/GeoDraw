@@ -10,6 +10,7 @@ import {
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import * as turf from '@turf/turf';
 import { renderAreaMeasurement, renderDistanceMeasurement } from './MeasurementPopup';
+import { restrictedZones } from '../data/restrictedZones';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapView.css';
 import DrawToolbar from './DrawToolbar.tsx';
@@ -31,7 +32,7 @@ const MapView = () => {
   const [windMwPerHa, setWindMwPerHa] = useState(0.1); // Conservative estimate for wind farms
 
   // Store popup references for updates
-  const popupsRef = useRef<Map<string | number, { popup: maplibregl.Popup; feature: any }>>(new Map());
+  const popupsRef = useRef<Map<string | number, { popup: maplibregl.Popup; feature: any; marker?: maplibregl.Marker }>>(new Map());
 
   // Check if this is the first visit
   useEffect(() => {
@@ -101,6 +102,33 @@ const MapView = () => {
       map.current.on('load', () => {
         if (!map.current) return;
 
+        // Add restricted zones to map
+        map.current.addSource('restricted-zones', {
+          type: 'geojson',
+          data: restrictedZones
+        });
+
+        map.current.addLayer({
+          id: 'restricted-zones-fill',
+          type: 'fill',
+          source: 'restricted-zones',
+          paint: {
+            'fill-color': ['get', 'color'],
+            'fill-opacity': 0.2
+          }
+        });
+
+        map.current.addLayer({
+          id: 'restricted-zones-outline',
+          type: 'line',
+          source: 'restricted-zones',
+          paint: {
+            'line-color': ['get', 'color'],
+            'line-width': 2,
+            'line-dasharray': [2, 2]
+          }
+        });
+
         // Initialize Terra Draw
         draw.current = new TerraDraw({
           adapter: new TerraDrawMapLibreGLAdapter({
@@ -164,6 +192,52 @@ const MapView = () => {
 
         if (feature && map.current) {
           let measurement = '';
+          let overlapWarnings: Array<{zoneName: string; overlapPercent: number; zoneType: string}> = [];
+
+          // Check for overlaps with restricted zones (only for Polygon and Circle)
+          if (feature.geometry.type === 'Polygon' || 
+              (feature.geometry.type === 'Point' && feature.properties?.mode === 'circle')) {
+            
+            let drawnFeature;
+            if (feature.geometry.type === 'Polygon') {
+              drawnFeature = turf.polygon(feature.geometry.coordinates);
+            } else {
+              // Convert circle to polygon for intersection calculation
+              const radiusMeters = (feature.properties.radiusMeters as number) || 0;
+              const center = feature.geometry.coordinates;
+              drawnFeature = turf.circle(center, radiusMeters / 1000, { units: 'kilometers' });
+            }
+
+            const drawnArea = turf.area(drawnFeature);
+
+            // Check each restricted zone
+            restrictedZones.features.forEach((zone) => {
+              try {
+                const zonePolygon = turf.polygon(zone.geometry.coordinates);
+                
+                if (turf.booleanIntersects(drawnFeature, zonePolygon)) {
+                  const intersection = turf.intersect(
+                    turf.featureCollection([drawnFeature, zonePolygon])
+                  );
+                  
+                  if (intersection) {
+                    const intersectionArea = turf.area(intersection);
+                    const overlapPercent = (intersectionArea / drawnArea) * 100;
+                    
+                    if (overlapPercent > 0.1) { // Only show if > 0.1%
+                      overlapWarnings.push({
+                        zoneName: zone.properties.name,
+                        overlapPercent,
+                        zoneType: zone.properties.type
+                      });
+                    }
+                  }
+                }
+              } catch (error) {
+                console.warn('Error checking overlap:', error);
+              }
+            });
+          }
 
           if (feature.geometry.type === 'Polygon') {
             const polygon = turf.polygon(feature.geometry.coordinates);
@@ -179,7 +253,8 @@ const MapView = () => {
               areaM2: area,
               solarMW: solarCapacityMW,
               windMW: windCapacityMW,
-              title: 'Land Area'
+              title: 'Land Area',
+              overlapWarnings: overlapWarnings.length > 0 ? overlapWarnings : undefined
             });
           } else if (feature.geometry.type === 'LineString') {
             const line = turf.lineString(feature.geometry.coordinates);
@@ -200,7 +275,8 @@ const MapView = () => {
               areaM2: area,
               solarMW: solarCapacityMW,
               windMW: windCapacityMW,
-              title: 'Circle Area'
+              title: 'Circle Area',
+              overlapWarnings: overlapWarnings.length > 0 ? overlapWarnings : undefined
             });
           }
 
@@ -209,6 +285,16 @@ const MapView = () => {
             const center = feature.geometry.type === 'Point'
               ? feature.geometry.coordinates
               : turf.center(feature as any).geometry.coordinates;
+
+            // Create marker element
+            const markerEl = document.createElement('div');
+            markerEl.className = 'center-marker';
+            markerEl.innerHTML = '📍';
+
+            // Add marker at center
+            const marker = new maplibregl.Marker({ element: markerEl })
+              .setLngLat(center as [number, number])
+              .addTo(map.current);
 
             const popup = new maplibregl.Popup({ 
               maxWidth: '320px',
@@ -219,11 +305,15 @@ const MapView = () => {
               .setHTML(measurement)
               .addTo(map.current);
 
-            // Store popup reference for later updates
-            popupsRef.current.set(id, { popup, feature });
+            // Store popup and marker reference for later updates
+            popupsRef.current.set(id, { popup, feature, marker });
 
             // Remove from map when popup is closed
             popup.on('close', () => {
+              const entry = popupsRef.current.get(id);
+              if (entry?.marker) {
+                entry.marker.remove();
+              }
               popupsRef.current.delete(id);
             });
           }
