@@ -38,6 +38,17 @@ map.on(L.Draw.Event.CREATED, function (e) {
     const length = turf.length(geojson, { units: "kilometers" });
     result = `Distance: ${length.toFixed(2)} km`;
   }
+ if (geojson.geometry.type === "Polygon") {
+    const area = turf.area(geojson);
+    const hectares = area / 10000;
+    result = `Area: ${hectares.toFixed(2)} ha`;
+  }
+
+  if (layer instanceof L.Circle) {
+    const radius = layer.getRadius();
+    const area = Math.PI * radius * radius;
+    result = `Circle Area: ${(area / 10000).toFixed(2)} ha`;
+  }
 
   layer.bindPopup(result).openPopup();
 });
