@@ -12,6 +12,7 @@ interface AreaMeasurementProps {
     overlapPercent: number;
     zoneType: string;
   }>;
+  gridDistance?: number;
 }
 
 interface DistanceMeasurementProps {
@@ -19,7 +20,7 @@ interface DistanceMeasurementProps {
   lengthM: number;
 }
 
-const AreaMeasurement = ({ hectares, areaM2, solarMW, windMW, title = 'Land Area', overlapWarnings }: AreaMeasurementProps) => (
+const AreaMeasurement = ({ hectares, areaM2, solarMW, windMW, title = 'Land Area', overlapWarnings, gridDistance }: AreaMeasurementProps) => (
   <div className="measurement-popup">
     <div className="measurement-title">
       {title}
@@ -27,6 +28,15 @@ const AreaMeasurement = ({ hectares, areaM2, solarMW, windMW, title = 'Land Area
     <div className="measurement-value">
       <strong>{hectares.toFixed(2)} ha</strong> ({areaM2.toFixed(2)} m²)
     </div>
+    
+    {gridDistance !== undefined && (
+      <div className="grid-distance">
+        <div className="grid-distance-icon">🔌</div>
+        <div className="grid-distance-text">
+          Distance to grid: <strong>~{gridDistance.toFixed(1)} km</strong>
+        </div>
+      </div>
+    )}
     
     {overlapWarnings && overlapWarnings.length > 0 && (
       <div className="overlap-warnings">

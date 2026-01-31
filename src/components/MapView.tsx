@@ -11,6 +11,7 @@ import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import * as turf from '@turf/turf';
 import { renderAreaMeasurement, renderDistanceMeasurement } from './MeasurementPopup';
 import { restrictedZones } from '../data/restrictedZones';
+import { gridInfrastructure } from '../data/gridInfrastructure';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapView.css';
 import DrawToolbar from './DrawToolbar.tsx';
@@ -129,6 +130,23 @@ const MapView = () => {
           }
         });
 
+        // Add grid infrastructure to map
+        map.current.addSource('grid-infrastructure', {
+          type: 'geojson',
+          data: gridInfrastructure
+        });
+
+        map.current.addLayer({
+          id: 'grid-lines',
+          type: 'line',
+          source: 'grid-infrastructure',
+          paint: {
+            'line-color': '#8b5cf6',
+            'line-width': 3,
+            'line-opacity': 0.8
+          }
+        });
+
         // Initialize Terra Draw
         draw.current = new TerraDraw({
           adapter: new TerraDrawMapLibreGLAdapter({
@@ -239,6 +257,31 @@ const MapView = () => {
             });
           }
 
+          // Calculate distance to nearest grid line for Polygon and Circle
+          let gridDistance: number | undefined;
+          if (feature.geometry.type === 'Polygon' || 
+              (feature.geometry.type === 'Point' && feature.properties?.mode === 'circle')) {
+            
+            let siteCenter;
+            if (feature.geometry.type === 'Polygon') {
+              siteCenter = turf.center(turf.polygon(feature.geometry.coordinates));
+            } else {
+              siteCenter = turf.point(feature.geometry.coordinates);
+            }
+
+            // Calculate distance to each grid line and find the nearest
+            let minDistance = Infinity;
+            gridInfrastructure.features.forEach((gridLine) => {
+              const line = turf.lineString(gridLine.geometry.coordinates);
+              const distance = turf.pointToLineDistance(siteCenter, line, { units: 'kilometers' });
+              if (distance < minDistance) {
+                minDistance = distance;
+              }
+            });
+
+            gridDistance = minDistance !== Infinity ? minDistance : undefined;
+          }
+
           if (feature.geometry.type === 'Polygon') {
             const polygon = turf.polygon(feature.geometry.coordinates);
             const area = turf.area(polygon);
@@ -254,7 +297,8 @@ const MapView = () => {
               solarMW: solarCapacityMW,
               windMW: windCapacityMW,
               title: 'Land Area',
-              overlapWarnings: overlapWarnings.length > 0 ? overlapWarnings : undefined
+              overlapWarnings: overlapWarnings.length > 0 ? overlapWarnings : undefined,
+              gridDistance
             });
           } else if (feature.geometry.type === 'LineString') {
             const line = turf.lineString(feature.geometry.coordinates);
@@ -276,7 +320,8 @@ const MapView = () => {
               solarMW: solarCapacityMW,
               windMW: windCapacityMW,
               title: 'Circle Area',
-              overlapWarnings: overlapWarnings.length > 0 ? overlapWarnings : undefined
+              overlapWarnings: overlapWarnings.length > 0 ? overlapWarnings : undefined,
+              gridDistance
             });
           }
 
