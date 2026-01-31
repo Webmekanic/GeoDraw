@@ -2,6 +2,12 @@
 
 A modern web mapping application built with React, TypeScript, MapLibre GL, and Terra Draw for drawing shapes and performing geospatial measurements.
 
+## Problem Statement
+
+Many web mapping applications are read-only, making it difficult for users to define boundaries, measure distances, and validate spatial inputs during early planning or analysis. Existing GIS tools are often complex and inaccessible to non-technical users.
+
+GeoDraw addresses this by enabling users to create, edit, and validate spatial features directly in the browser with real-time measurements and constraints.
+
 ## Features
 
 - **Interactive Drawing Tools**
@@ -110,6 +116,14 @@ src/
 ├── main.tsx                 # Entry point
 └── index.css                # Global styles
 ```
+
+## Example Use Cases
+
+- Land parcel boundary definition
+- Infrastructure and site planning
+- Environmental impact assessments
+- Property size and distance estimation
+- Early-stage spatial analysis before exporting data to GIS systems
 
 ## License
 

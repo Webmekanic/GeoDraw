@@ -9,11 +9,16 @@ import {
 } from 'terra-draw';
 import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter';
 import * as turf from '@turf/turf';
+import { renderAreaMeasurement, renderDistanceMeasurement } from './MeasurementPopup';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapView.css';
 import DrawToolbar from './DrawToolbar.tsx';
 
 type DrawMode = 'select' | 'polygon' | 'linestring' | 'circle' | null;
+
+// Renewable energy capacity constants
+const SOLAR_MW_PER_HECTARE = 0.5; // 1 MW ≈ 2 hectares
+const WIND_MW_PER_HECTARE = 0.1; // Conservative estimate for wind farms
 
 const MapView = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -143,18 +148,39 @@ const MapView = () => {
             const polygon = turf.polygon(feature.geometry.coordinates);
             const area = turf.area(polygon);
             const hectares = area / 10000;
-            measurement = `Area: ${hectares.toFixed(2)} ha (${area.toFixed(2)} m²)`;
+            
+            // Calculate renewable energy potential
+            const solarCapacityMW = hectares * SOLAR_MW_PER_HECTARE;
+            const windCapacityMW = hectares * WIND_MW_PER_HECTARE;
+            
+            measurement = renderAreaMeasurement({
+              hectares,
+              areaM2: area,
+              solarMW: solarCapacityMW,
+              windMW: windCapacityMW,
+              title: 'Land Area'
+            });
           } else if (feature.geometry.type === 'LineString') {
             const line = turf.lineString(feature.geometry.coordinates);
             const lengthKm = turf.length(line, { units: 'kilometers' });
             const lengthM = turf.length(line, { units: 'meters' });
-            measurement = `Distance: ${lengthKm.toFixed(2)} km (${lengthM.toFixed(2)} m)`;
+            measurement = renderDistanceMeasurement({ lengthKm, lengthM });
           } else if (feature.geometry.type === 'Point' && feature.properties?.mode === 'circle') {
-            // Handle circle measurement
+            // Handle circle measurement with renewable potential
             const radiusMeters = (feature.properties.radiusMeters as number) || 0;
             const area = Math.PI * radiusMeters * radiusMeters;
             const hectares = area / 10000;
-            measurement = `Circle Area: ${hectares.toFixed(2)} ha (${area.toFixed(2)} m²)`;
+            
+            const solarCapacityMW = hectares * SOLAR_MW_PER_HECTARE;
+            const windCapacityMW = hectares * WIND_MW_PER_HECTARE;
+            
+            measurement = renderAreaMeasurement({
+              hectares,
+              areaM2: area,
+              solarMW: solarCapacityMW,
+              windMW: windCapacityMW,
+              title: 'Circle Area'
+            });
           }
 
           if (measurement) {
@@ -163,9 +189,13 @@ const MapView = () => {
               ? feature.geometry.coordinates
               : turf.center(feature as any).geometry.coordinates;
 
-            new maplibregl.Popup()
+            new maplibregl.Popup({ 
+              maxWidth: '320px',
+              anchor: 'left',
+              offset: 25
+            })
               .setLngLat(center as [number, number])
-              .setHTML(`<div style="padding: 5px; font-weight: bold;">${measurement}</div>`)
+              .setHTML(measurement)
               .addTo(map.current);
           }
         }
