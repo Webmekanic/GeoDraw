@@ -13,18 +13,23 @@ import { renderAreaMeasurement, renderDistanceMeasurement } from './MeasurementP
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapView.css';
 import DrawToolbar from './DrawToolbar.tsx';
+import AssumptionControls from './AssumptionControls';
 
 type DrawMode = 'select' | 'polygon' | 'linestring' | 'circle' | null;
-
-// Renewable energy capacity constants
-const SOLAR_MW_PER_HECTARE = 0.5; // 1 MW ≈ 2 hectares
-const WIND_MW_PER_HECTARE = 0.1; // Conservative estimate for wind farms
 
 const MapView = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const draw = useRef<TerraDraw | null>(null);
   const [currentMode, setCurrentMode] = useState<DrawMode>(null);
+  const [isAssumptionExpanded, setIsAssumptionExpanded] = useState(false);
+  
+  // Adjustable renewable energy assumptions
+  const [solarMwPerHa, setSolarMwPerHa] = useState(0.5); // 1 MW ≈ 2 hectares
+  const [windMwPerHa, setWindMwPerHa] = useState(0.1); // Conservative estimate for wind farms
+
+  // Store popup references for updates
+  const popupsRef = useRef<Map<string | number, { popup: maplibregl.Popup; feature: any }>>(new Map());
 
   useEffect(() => {
     if (!mapContainer.current) {
@@ -76,6 +81,11 @@ const MapView = () => {
       }, 200);
 
       map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+      // Close assumption controls when clicking on map
+      map.current.on('click', () => {
+        setIsAssumptionExpanded(false);
+      });
 
       map.current.on('load', () => {
         if (!map.current) return;
@@ -150,8 +160,8 @@ const MapView = () => {
             const hectares = area / 10000;
             
             // Calculate renewable energy potential
-            const solarCapacityMW = hectares * SOLAR_MW_PER_HECTARE;
-            const windCapacityMW = hectares * WIND_MW_PER_HECTARE;
+            const solarCapacityMW = hectares * solarMwPerHa;
+            const windCapacityMW = hectares * windMwPerHa;
             
             measurement = renderAreaMeasurement({
               hectares,
@@ -171,8 +181,8 @@ const MapView = () => {
             const area = Math.PI * radiusMeters * radiusMeters;
             const hectares = area / 10000;
             
-            const solarCapacityMW = hectares * SOLAR_MW_PER_HECTARE;
-            const windCapacityMW = hectares * WIND_MW_PER_HECTARE;
+            const solarCapacityMW = hectares * solarMwPerHa;
+            const windCapacityMW = hectares * windMwPerHa;
             
             measurement = renderAreaMeasurement({
               hectares,
@@ -189,7 +199,7 @@ const MapView = () => {
               ? feature.geometry.coordinates
               : turf.center(feature as any).geometry.coordinates;
 
-            new maplibregl.Popup({ 
+            const popup = new maplibregl.Popup({ 
               maxWidth: '320px',
               anchor: 'left',
               offset: 25
@@ -197,6 +207,14 @@ const MapView = () => {
               .setLngLat(center as [number, number])
               .setHTML(measurement)
               .addTo(map.current);
+
+            // Store popup reference for later updates
+            popupsRef.current.set(id, { popup, feature });
+
+            // Remove from map when popup is closed
+            popup.on('close', () => {
+              popupsRef.current.delete(id);
+            });
           }
         }
       });
@@ -213,6 +231,57 @@ const MapView = () => {
     };
   }, []);
 
+  // Recalculate all popup measurements with new assumptions
+  const recalculatePopups = () => {
+    popupsRef.current.forEach(({ popup, feature }) => {
+      let measurement = '';
+
+      if (feature.geometry.type === 'Polygon') {
+        const polygon = turf.polygon(feature.geometry.coordinates);
+        const area = turf.area(polygon);
+        const hectares = area / 10000;
+        const solarCapacityMW = hectares * solarMwPerHa;
+        const windCapacityMW = hectares * windMwPerHa;
+        
+        measurement = renderAreaMeasurement({
+          hectares,
+          areaM2: area,
+          solarMW: solarCapacityMW,
+          windMW: windCapacityMW,
+          title: 'Land Area'
+        });
+      } else if (feature.geometry.type === 'LineString') {
+        const line = turf.lineString(feature.geometry.coordinates);
+        const lengthKm = turf.length(line, { units: 'kilometers' });
+        const lengthM = turf.length(line, { units: 'meters' });
+        measurement = renderDistanceMeasurement({ lengthKm, lengthM });
+      } else if (feature.geometry.type === 'Point' && feature.properties?.mode === 'circle') {
+        const radiusMeters = (feature.properties.radiusMeters as number) || 0;
+        const area = Math.PI * radiusMeters * radiusMeters;
+        const hectares = area / 10000;
+        const solarCapacityMW = hectares * solarMwPerHa;
+        const windCapacityMW = hectares * windMwPerHa;
+        
+        measurement = renderAreaMeasurement({
+          hectares,
+          areaM2: area,
+          solarMW: solarCapacityMW,
+          windMW: windCapacityMW,
+          title: 'Circle Area'
+        });
+      }
+
+      if (measurement) {
+        popup.setHTML(measurement);
+      }
+    });
+  };
+
+  // Auto-recalculate when assumptions change
+  useEffect(() => {
+    recalculatePopups();
+  }, [solarMwPerHa, windMwPerHa]);
+
   const handleModeChange = (mode: DrawMode) => {
     if (draw.current && mode) {
       draw.current.setMode(mode);
@@ -228,6 +297,14 @@ const MapView = () => {
 
   return (
     <div className="map-view">
+      <AssumptionControls
+        solarMwPerHa={solarMwPerHa}
+        windMwPerHa={windMwPerHa}
+        onSolarChange={setSolarMwPerHa}
+        onWindChange={setWindMwPerHa}
+        isExpanded={isAssumptionExpanded}
+        onToggle={setIsAssumptionExpanded}
+      />
       <DrawToolbar
         currentMode={currentMode}
         onModeChange={handleModeChange}
