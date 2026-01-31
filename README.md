@@ -1,71 +1,96 @@
-# GeoDraw - Interactive Map Drawing Application
+# ⚡ EnergySite Explorer
 
-A modern web mapping application built with React, TypeScript, MapLibre GL, and Terra Draw for drawing shapes and performing geospatial measurements.
+> A MapLibre + Terra Draw–powered geospatial planning tool that turns drawn land parcels into transparent, assumption-driven renewable energy capacity estimates.
 
-## Problem Statement
+![MapLibre GL](https://img.shields.io/badge/MapLibre%20GL-4.0.0-blue)
+![Terra Draw](https://img.shields.io/badge/Terra%20Draw-1.23.3-green)
+![React](https://img.shields.io/badge/React-18.2.0-61dafb)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-3178c6)
 
-Many web mapping applications are read-only, making it difficult for users to define boundaries, measure distances, and validate spatial inputs during early planning or analysis. Existing GIS tools are often complex and inaccessible to non-technical users.
+---
 
-GeoDraw addresses this by enabling users to create, edit, and validate spatial features directly in the browser with real-time measurements and constraints.
+## 🎯 Problem Statement
 
-## Features
+Renewable energy site planning requires balancing multiple spatial constraints—available land, environmental restrictions, grid proximity, and capacity potential. Traditional GIS tools are powerful but inaccessible to non-specialists. Simple mapping apps lack the domain-specific intelligence to translate geometries into actionable energy insights.
 
-- **Interactive Drawing Tools**
-  - Polygon drawing with snapping
-  - Polyline/LineString drawing
-  - Circle drawing
-  - Selection and editing mode
+**EnergySite Explorer bridges this gap:** Draw a polygon, instantly see solar/wind potential in MW, detect overlaps with restricted zones, and calculate distance to grid infrastructure—all in your browser, with transparent assumptions you can adjust in real-time.
 
-- **Advanced Editing Capabilities**
-  - Vertex manipulation (drag, add, delete)
-  - Midpoint editing
-  - Shape rotation and scaling (polygons)
-  - Snapping to nearby features (30px threshold)
-  - Validation (prevents self-intersecting polygons)
+---
 
-- **Measurements**
-  - Polygon areas in hectares and square meters
-  - LineString distances in kilometers and meters
-  - Circle areas in hectares and square meters
-  - Real-time measurement display via popups
+## ✨ Features
 
-- **Map Controls**
-  - Zoom in/out
-  - Pan
-  - Navigation controls
-  - Clear all drawings
+### 🎨 **Interactive Drawing Tools**
+- **Polygon Mode** - Define land parcels with vertex snapping
+- **Circle Mode** - Radial site planning with draggable radius
+- **Line Mode** - Route planning for transmission lines
+- **Select Mode** - Full vertex editing (drag, add midpoints, delete, rotate, scale)
+- **📍 Center Markers** - Visual pins at polygon/circle centroids
 
-## Tech Stack
+### 📏 **Intelligent Measurements**
+- **Area Calculations** - Hectares and square meters for land parcels
+- **Distance Measurements** - Kilometers and meters for transmission routes
+- **Real-time Popups** - Instant feedback on every drawn feature
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **MapLibre GL JS** - Map rendering
-- **Terra Draw** - Drawing and editing toolkit
-- **Turf.js** - Geospatial analysis and measurements
+### ⚡ **Renewable Energy Planning**
+- **Solar Capacity Estimates** - MW potential based on land area and configurable MW/ha assumptions
+- **Wind Capacity Estimates** - MW potential with adjustable density factors
+- **Live Assumption Controls** - Top-right panel to modify solar/wind MW/ha ratios
+- **Transparent Calculations** - All capacity estimates recalculate when assumptions change
 
-## Getting Started
+### 🚨 **Constraint Validation**
+- **Restricted Zone Detection** - Automatic overlap analysis with:
+  - 🌳 Protected areas (e.g., national park buffers)
+  - 🏘️ Settlement zones (residential/urban areas)
+  - 🌊 Floodplains (environmental constraints)
+- **Visual Overlays** - Semi-transparent constraint layers with color-coded boundaries
+- **Overlap Warnings** - Percentage-based alerts in measurement popups
+
+### 🔌 **Grid Infrastructure Analysis**
+- **Distance to Grid** - Calculate proximity to nearest transmission/distribution lines
+- **Visual Grid Lines** - Purple map overlay showing 132kV, 220kV, and 33kV infrastructure
+- **Real-world Context** - Demonstrates that capacity without grid access is meaningless
+
+### 🧭 **User Experience**
+- **Vertical Icon Toolbar** - Space-efficient tool selector with hover tooltips
+- **Interactive Tour** - 4-step guided walkthrough for first-time users
+- **Viewport-Aware UI** - Tour tooltips auto-reposition to stay on screen
+- **Responsive Design** - Works on desktop and tablet screens
+
+---
+
+## 🛠️ Tech Stack
+
+- **React 18.2.0** - Modern UI framework with hooks
+- **TypeScript 5.2.2** - Type-safe development
+- **Vite 5.0.8** - Lightning-fast build tool and HMR dev server
+- **MapLibre GL JS 4.0.0** - Open-source map rendering engine
+- **Terra Draw 1.23.3** - Feature-rich drawing and editing library
+- **Turf.js 7.3.0** - Advanced geospatial analysis (area, distance, intersection, point-to-line)
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- npm or yarn
+- **Node.js** v16+ (recommended: v18 or v20)
+- **npm** 
 
 ### Installation
 
-1. Install dependencies:
-
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/energysite-explorer.git
+cd energysite-explorer
+
+# Install dependencies
 npm install
-```
 
-1. Start the development server:
-
-```bash
+# Start development server
 npm run dev
 ```
 
-1. Open your browser and navigate to the URL shown in the terminal (typically `http://localhost:5173`)
+The app will open at `http://localhost:5173`
 
 ### Build for Production
 
@@ -73,7 +98,7 @@ npm run dev
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+Output: `dist/` directory ready for deployment
 
 ### Preview Production Build
 
@@ -81,60 +106,189 @@ The built files will be in the `dist` directory.
 npm run preview
 ```
 
-## Usage
+---
 
-1. **Select Mode** - Click to select and edit existing shapes
-   - Drag vertices to move them
-   - Drag midpoints to add new vertices
-   - Click vertices to delete them
-   - Drag entire shapes to reposition
-   - Rotate and scale polygons
+## 📖 Usage Guide
 
-2. **Polygon Mode** - Click to add vertices, double-click or click first vertex to finish
+### Drawing Tools
+
+1. **🖱️ Select Mode** (Default)
+   - Click shapes to select
+   - Drag vertices to reposition
+   - Drag midpoints (◆) to add new vertices
+   - Click vertices to delete
+   - Drag shapes to move
+   - Use handles to rotate/scale polygons
+
+2. **▢ Polygon Mode**
+   - Click to place vertices
+   - Double-click or click first vertex to close
    - Auto-validates against self-intersections
-   - Snapping enabled
 
-3. **Line Mode** - Click to add vertices, double-click to finish
-   - Snapping enabled
+3. **─ Line Mode**
+   - Click to place vertices
+   - Double-click to finish
+   - Useful for transmission line planning
 
-4. **Circle Mode** - Click center, then click to set radius
-   - Snapping enabled
+4. **○ Circle Mode**
+   - Click to set center
+   - Click again to set radius
+   - Drag to reposition
 
-5. **Clear** - Remove all drawings from the map
+5. **⚙️ Assumption Controls** (Top-right gear icon)
+   - Adjust Solar MW/ha (default: 0.5)
+   - Adjust Wind MW/ha (default: 0.1)
+   - All capacity estimates update live
 
-## Energy Planning Capabilities
+6. **🗑️ Clear All**
+   - Removes all drawings from map
 
-GeoDraw extends basic geospatial drawing by translating spatial inputs
-into early-stage renewable energy planning signals.
+### Reading the Popups
 
-Drawn land parcels automatically generate indicative solar and wind
-capacity estimates based on configurable land-use assumptions. This
-demonstrates how interactive web maps can support transparent,
-open energy system planning workflows.
+When you draw a polygon or circle, the popup shows:
 
-## Project Structure
+```
+Land Area
+25.34 ha (253400.00 m²)
+
+🔌 Distance to grid: ~3.2 km
+
+⚠️ 15.3% overlaps Nairobi River Floodplain
+
+☀️ Solar Potential
+~12.67 MW
+
+🌬️ Wind Potential
+~2.53 MW
+```
+
+- **Area** - Calculated using Turf.js geodesic area
+- **Grid Distance** - Nearest transmission/distribution line
+- **Overlap Warnings** - % overlap with restricted zones
+- **Capacity** - Based on your assumption settings
+
+---
+
+## 🏗️ Project Structure
 
 ```
 src/
 ├── components/
-│   ├── MapView.tsx          # Main map component with Terra Draw integration
-│   ├── MapView.css          # Map styling
-│   ├── DrawToolbar.tsx      # Drawing mode toolbar
-│   └── DrawToolbar.css      # Toolbar styling
-├── App.tsx                  # Root component
-├── App.css                  # App styling
-├── main.tsx                 # Entry point
-└── index.css                # Global styles
+│   ├── MapView.tsx              # Main map + Terra Draw orchestration
+│   ├── MapView.css              # Map and marker styling
+│   ├── DrawToolbar.tsx          # Vertical tool selector
+│   ├── DrawToolbar.css          # Toolbar styling
+│   ├── AssumptionControls.tsx   # MW/ha settings panel
+│   ├── AssumptionControls.css   # Settings panel styling
+│   ├── MeasurementPopup.tsx     # Popup React components
+│   ├── MeasurementPopup.css     # Popup styling
+│   ├── Tour.tsx                 # First-time user guide
+│   ├── Tour.css                 # Tour overlay styling
+│   └── tourSteps.ts             # Tour step configuration
+├── data/
+│   ├── restrictedZones.ts       # Mock constraint GeoJSON
+│   └── gridInfrastructure.ts    # Mock grid line GeoJSON
+├── App.tsx                      # Root component
+├── App.css                      # Global app styling
+├── main.tsx                     # React entry point
+└── index.css                    # CSS reset and globals
 ```
 
-## Example Use Cases
+---
 
-- Land parcel boundary definition
-- Infrastructure and site planning
-- Environmental impact assessments
-- Property size and distance estimation
-- Early-stage spatial analysis before exporting data to GIS systems
+## 🎓 Key Concepts
 
-## License
+### Why Capacity Calculations Matter
 
-MIT
+This tool demonstrates **systems thinking** in renewable energy planning:
+
+- **Not just geometry** - MW estimates show economic feasibility
+- **Transparent assumptions** - Users see and control MW/ha ratios
+- **Real constraints** - Restricted zones and grid distance reflect planning reality
+- **Interactive learning** - Adjust assumptions to see impact immediately
+
+### Constraint Types
+
+| Zone Type | Color | Meaning |
+|-----------|-------|---------|
+| 🌳 Protected Area | Green | National parks, wildlife buffers |
+| 🏘️ Settlement | Red | Urban/residential zones |
+| 🌊 Floodplain | Blue | Environmental flood risk areas |
+
+### Grid Infrastructure
+
+- **132kV Transmission** - Regional power evacuation
+- **220kV Transmission** - High-capacity backbone
+- **33kV Distribution** - Local delivery network
+
+Distance to grid affects project economics—longer distances require costly new transmission infrastructure.
+
+---
+
+## 🌍 Example Use Cases
+
+- **🌞 Solar Farm Siting** - Find suitable land with low environmental impact and grid proximity
+- **💨 Wind Farm Planning** - Assess MW potential and constraint conflicts
+- **🔌 Transmission Route Design** - Plan new lines to connect generation sites
+- **📊 Early-Stage Feasibility** - Quick capacity estimates before GIS analysis
+- **🎓 Educational Tool** - Teach renewable energy planning principles
+- **🗺️ Spatial Awareness** - Understand how constraints shape project viability
+
+---
+
+## 🔮 Future Enhancements
+
+- [ ] Export GeoJSON/Shapefile for GIS integration
+- [ ] Import existing site boundaries
+- [ ] Multi-user collaboration with cloud storage
+- [ ] Real grid infrastructure data via OpenStreetMap
+- [ ] Elevation analysis for terrain impact
+- [ ] Solar irradiance layer integration
+- [ ] Wind resource map overlay
+- [ ] Cost estimation models
+- [ ] Project comparison dashboard
+
+---
+
+## 📚 Learn More
+
+- [MapLibre GL JS Documentation](https://maplibre.org/maplibre-gl-js/docs/)
+- [Terra Draw Documentation](https://github.com/JamesLMilner/terra-draw)
+- [Turf.js Documentation](https://turfjs.org/)
+- [React Documentation](https://react.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details
+
+---
+
+## 🙏 Acknowledgments
+
+- **OpenStreetMap** contributors for base map tiles
+- **Terra Draw** by James Milner for the drawing toolkit
+- **MapLibre** community for the open map rendering engine
+- **Turf.js** for powerful geospatial algorithms
+
+---
+
+<div align="center">
+
+**Built with ⚡ for renewable energy planning**
+
+</div>
