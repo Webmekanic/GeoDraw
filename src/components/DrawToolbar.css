@@ -1,0 +1,85 @@
+.draw-toolbar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+  flex-wrap: wrap;
+  max-width: 90%;
+}
+
+.toolbar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 70px;
+}
+
+.toolbar-btn:hover {
+  background: #f5f5f5;
+  border-color: #3b82f6;
+}
+
+.toolbar-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #2563eb;
+}
+
+.toolbar-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.toolbar-divider {
+  width: 2px;
+  background: #e5e7eb;
+  margin: 0 4px;
+}
+
+.clear-btn {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.clear-btn:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .draw-toolbar {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .toolbar-btn {
+    min-width: 60px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .toolbar-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
