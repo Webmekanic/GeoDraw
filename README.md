@@ -1,4 +1,4 @@
-# ⚡ EnergySite Explorer
+# GeoDraw
 
 > A MapLibre + Terra Draw–powered geospatial planning tool that turns drawn land parcels into transparent, assumption-driven renewable energy capacity estimates.
 
