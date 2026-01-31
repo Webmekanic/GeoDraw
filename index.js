@@ -38,5 +38,6 @@ map.on(L.Draw.Event.CREATED, function (e) {
     const length = turf.length(geojson, { units: "kilometers" });
     result = `Distance: ${length.toFixed(2)} km`;
   }
+
   layer.bindPopup(result).openPopup();
 });
