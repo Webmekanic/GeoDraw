@@ -1,9 +1,10 @@
 import './App.css'
+import MapView from './components/MapView.tsx'
 
 function App() {
   return (
     <div className="app">
-        {/* Application content goes here */}
+        <MapView />
     </div>
   )
 }
