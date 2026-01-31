@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { tourSteps } from './tourSteps';
-import './Tour.css';
+import '../styles/Tour.css';
 
 interface TourProps {
   isOpen: boolean;
@@ -44,8 +44,8 @@ const Tour = ({ isOpen, onClose }: TourProps) => {
       switch (step.position) {
         case 'right':
           top = rect.top + rect.height / 2;
-          left = rect.right + padding;
-          // Keep within viewport
+            left = rect.right + padding;
+              
           if (left + tooltipWidth > window.innerWidth) {
             left = window.innerWidth - tooltipWidth - padding;
           }
@@ -53,7 +53,7 @@ const Tour = ({ isOpen, onClose }: TourProps) => {
         case 'left':
           top = rect.top + rect.height / 2;
           left = rect.left - tooltipWidth - padding;
-          // If goes off left edge, show on right instead
+
           if (left < padding) {
             left = rect.right + padding;
           }
@@ -61,7 +61,7 @@ const Tour = ({ isOpen, onClose }: TourProps) => {
         case 'top':
           top = rect.top - tooltipHeight - padding;
           left = rect.left + rect.width / 2 - tooltipWidth / 2;
-          // If goes off top, show at bottom instead
+              
           if (top < padding) {
             top = rect.bottom + padding;
           }
@@ -72,14 +72,12 @@ const Tour = ({ isOpen, onClose }: TourProps) => {
           break;
       }
 
-      // Keep tooltip within horizontal viewport bounds
       if (left < padding) {
         left = padding;
       } else if (left + tooltipWidth > window.innerWidth - padding) {
         left = window.innerWidth - tooltipWidth - padding;
       }
 
-      // Keep tooltip within vertical viewport bounds
       if (top < padding) {
         top = padding;
       } else if (top + tooltipHeight > window.innerHeight - padding) {
@@ -120,7 +118,6 @@ const Tour = ({ isOpen, onClose }: TourProps) => {
   const step = tourSteps[currentStep];
   const targetElement = document.querySelector(step.target);
 
-  // If target element not found, show centered fallback
   if (!targetElement) {
     console.warn(`Tour target not found: ${step.target}`);
     return (
@@ -161,7 +158,6 @@ const Tour = ({ isOpen, onClose }: TourProps) => {
 
   const rect = targetElement.getBoundingClientRect();
   
-  // Safety check for valid dimensions
   if (!rect || rect.width === 0 || rect.height === 0) {
     console.warn(`Tour target has invalid dimensions:`, step.target, rect);
     return null;

@@ -160,16 +160,17 @@ Land Area
 src/
 ├── components/
 │   ├── MapView.tsx              # Main map + Terra Draw orchestration
-│   ├── MapView.css              # Map and marker styling
 │   ├── DrawToolbar.tsx          # Vertical tool selector
-│   ├── DrawToolbar.css          # Toolbar styling
 │   ├── AssumptionControls.tsx   # MW/ha settings panel
-│   ├── AssumptionControls.css   # Settings panel styling
 │   ├── MeasurementPopup.tsx     # Popup React components
-│   ├── MeasurementPopup.css     # Popup styling
 │   ├── Tour.tsx                 # First-time user guide
-│   ├── Tour.css                 # Tour overlay styling
 │   └── tourSteps.ts             # Tour step configuration
+├── styles/
+│   ├── MapView.css              # Map and marker styling
+│   ├── DrawToolbar.css          # Toolbar styling
+│   ├── AssumptionControls.css   # Settings panel styling
+│   ├── MeasurementPopup.css     # Popup styling
+│   └── Tour.css                 # Tour overlay styling
 ├── data/
 │   ├── restrictedZones.ts       # Mock constraint GeoJSON
 │   └── gridInfrastructure.ts    # Mock grid line GeoJSON

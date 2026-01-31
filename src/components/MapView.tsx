@@ -13,7 +13,7 @@ import { renderAreaMeasurement, renderDistanceMeasurement } from './MeasurementP
 import { restrictedZones } from '../data/restrictedZones';
 import { gridInfrastructure } from '../data/gridInfrastructure';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import './MapView.css';
+import '../styles/MapView.css';
 import DrawToolbar from './DrawToolbar.tsx';
 import AssumptionControls from './AssumptionControls';
 import Tour from './Tour';
@@ -27,19 +27,14 @@ const MapView = () => {
   const [currentMode, setCurrentMode] = useState<DrawMode>(null);
   const [isAssumptionExpanded, setIsAssumptionExpanded] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
-  
-  // Adjustable renewable energy assumptions
-  const [solarMwPerHa, setSolarMwPerHa] = useState(0.5); // 1 MW ≈ 2 hectares
-  const [windMwPerHa, setWindMwPerHa] = useState(0.1); // Conservative estimate for wind farms
+  const [solarMwPerHa, setSolarMwPerHa] = useState(0.5); 
+  const [windMwPerHa, setWindMwPerHa] = useState(0.1);
 
-  // Store popup references for updates
   const popupsRef = useRef<Map<string | number, { popup: maplibregl.Popup; feature: any; marker?: maplibregl.Marker }>>(new Map());
 
-  // Check if this is the first visit
   useEffect(() => {
     const tourCompleted = localStorage.getItem('tourCompleted');
     if (!tourCompleted) {
-      // Delay tour start slightly to let the map render
       setTimeout(() => setIsTourOpen(true), 500);
     }
   }, []);
@@ -86,7 +81,6 @@ const MapView = () => {
 
       map.current = mapInstance;
 
-      // Force resize
       setTimeout(() => {
         if (map.current) {
           map.current.resize();
@@ -95,7 +89,6 @@ const MapView = () => {
 
       map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
-      // Close assumption controls when clicking on map
       map.current.on('click', () => {
         setIsAssumptionExpanded(false);
       });
@@ -220,7 +213,6 @@ const MapView = () => {
             if (feature.geometry.type === 'Polygon') {
               drawnFeature = turf.polygon(feature.geometry.coordinates);
             } else {
-              // Convert circle to polygon for intersection calculation
               const radiusMeters = (feature.properties.radiusMeters as number) || 0;
               const center = feature.geometry.coordinates;
               drawnFeature = turf.circle(center, radiusMeters / 1000, { units: 'kilometers' });
@@ -242,7 +234,7 @@ const MapView = () => {
                     const intersectionArea = turf.area(intersection);
                     const overlapPercent = (intersectionArea / drawnArea) * 100;
                     
-                    if (overlapPercent > 0.1) { // Only show if > 0.1%
+                    if (overlapPercent > 0.1) {
                       overlapWarnings.push({
                         zoneName: zone.properties.name,
                         overlapPercent,
@@ -287,7 +279,6 @@ const MapView = () => {
             const area = turf.area(polygon);
             const hectares = area / 10000;
             
-            // Calculate renewable energy potential
             const solarCapacityMW = hectares * solarMwPerHa;
             const windCapacityMW = hectares * windMwPerHa;
             
@@ -326,17 +317,13 @@ const MapView = () => {
           }
 
           if (measurement) {
-            // Get center of feature for popup
             const center = feature.geometry.type === 'Point'
               ? feature.geometry.coordinates
               : turf.center(feature as any).geometry.coordinates;
 
-            // Create marker element
             const markerEl = document.createElement('div');
             markerEl.className = 'center-marker';
             markerEl.innerHTML = '📍';
-
-            // Add marker at center
             const marker = new maplibregl.Marker({ element: markerEl })
               .setLngLat(center as [number, number])
               .addTo(map.current);
@@ -350,10 +337,8 @@ const MapView = () => {
               .setHTML(measurement)
               .addTo(map.current);
 
-            // Store popup and marker reference for later updates
             popupsRef.current.set(id, { popup, feature, marker });
 
-            // Remove from map when popup is closed
             popup.on('close', () => {
               const entry = popupsRef.current.get(id);
               if (entry?.marker) {
@@ -439,6 +424,15 @@ const MapView = () => {
     if (draw.current) {
       draw.current.clear();
     }
+
+    // Clear all popups and markers
+    popupsRef.current.forEach(({ popup, marker }) => {
+      popup.remove();
+      if (marker) {
+        marker.remove();
+      }
+    });
+    popupsRef.current.clear();
   };
 
   return (

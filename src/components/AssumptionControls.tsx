@@ -1,4 +1,4 @@
-import './AssumptionControls.css';
+import '../styles/AssumptionControls.css';
 
 interface AssumptionControlsProps {
   solarMwPerHa: number;

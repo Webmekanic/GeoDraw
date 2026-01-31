@@ -1,4 +1,4 @@
-import './DrawToolbar.css';
+import '../styles/DrawToolbar.css';
 
 interface DrawToolbarProps {
   currentMode: string | null;

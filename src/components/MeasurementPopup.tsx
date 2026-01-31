@@ -1,5 +1,5 @@
 import { renderToString } from 'react-dom/server';
-import './MeasurementPopup.css';
+import '../styles/MeasurementPopup.css';
 
 interface AreaMeasurementProps {
   hectares: number;
@@ -88,7 +88,6 @@ const DistanceMeasurement = ({ lengthKm, lengthM }: DistanceMeasurementProps) =>
   </div>
 );
 
-// Export functions that return HTML strings for MapLibre popups
 export const renderAreaMeasurement = (props: AreaMeasurementProps): string => {
   return renderToString(<AreaMeasurement {...props} />);
 };
