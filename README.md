@@ -8,10 +8,12 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-3178c6)
 
 ---
+<img width="1511" height="825" alt="Screenshot 2026-01-31 at 11 13 23 PM" src="https://github.com/user-attachments/assets/d4c50370-d425-496e-aecb-8210b8c95d0b" />
+
 
 ## 🎯 Problem Statement
 
-Renewable energy site planning requires balancing multiple spatial constraints—available land, environmental restrictions, grid proximity, and capacity potential. Traditional GIS tools are powerful but inaccessible to non-specialists. Simple mapping apps lack the domain-specific intelligence to translate geometries into actionable energy insights.
+Renewable energy site planning requires balancing multiple spatial constraints available land, environmental restrictions, grid proximity, and capacity potential. Traditional GIS tools are powerful but inaccessible to non-specialists. Simple mapping apps lack the domain-specific intelligence to translate geometries into actionable energy insights.
 
 **EnergySite Explorer bridges this gap:** Draw a polygon, instantly see solar/wind potential in MW, detect overlaps with restricted zones, and calculate distance to grid infrastructure—all in your browser, with transparent assumptions you can adjust in real-time.
 
@@ -49,23 +51,6 @@ Renewable energy site planning requires balancing multiple spatial constraints�
 - **Distance to Grid** - Calculate proximity to nearest transmission/distribution lines
 - **Visual Grid Lines** - Purple map overlay showing 132kV, 220kV, and 33kV infrastructure
 - **Real-world Context** - Demonstrates that capacity without grid access is meaningless
-
-### 🧭 **User Experience**
-- **Vertical Icon Toolbar** - Space-efficient tool selector with hover tooltips
-- **Interactive Tour** - 4-step guided walkthrough for first-time users
-- **Viewport-Aware UI** - Tour tooltips auto-reposition to stay on screen
-- **Responsive Design** - Works on desktop and tablet screens
-
----
-
-## 🛠️ Tech Stack
-
-- **React 18.2.0** - Modern UI framework with hooks
-- **TypeScript 5.2.2** - Type-safe development
-- **Vite 5.0.8** - Lightning-fast build tool and HMR dev server
-- **MapLibre GL JS 4.0.0** - Open-source map rendering engine
-- **Terra Draw 1.23.3** - Feature-rich drawing and editing library
-- **Turf.js 7.3.0** - Advanced geospatial analysis (area, distance, intersection, point-to-line)
 
 ---
 
