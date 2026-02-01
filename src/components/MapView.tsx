@@ -213,6 +213,15 @@ const MapView = () => {
         const feature = snapshot?.find((f) => f.id === id);
 
         if (feature && map.current) {
+          const existingEntry = popupsRef.current.get(id);
+          if (existingEntry) {
+            existingEntry.popup.remove();
+            if (existingEntry.marker) {
+              existingEntry.marker.remove();
+            }
+            popupsRef.current.delete(id);
+          }
+
           let measurement = '';
           let overlapWarnings: Array<{zoneName: string; overlapPercent: number; zoneType: string}> = [];
 
