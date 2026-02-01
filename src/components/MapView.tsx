@@ -195,6 +195,17 @@ const MapView = () => {
 
       draw.current.start();
       draw.current.setMode('select');
+        
+      draw.current.on('select', (id) => {
+        const existingEntry = popupsRef.current.get(id);
+        if (existingEntry) {
+          existingEntry.popup.remove();
+          if (existingEntry.marker) {
+            existingEntry.marker.remove();
+          }
+          popupsRef.current.delete(id);
+        }
+      });
 
       // Handle feature creation and measurement
       draw.current.on('finish', (id) => {
